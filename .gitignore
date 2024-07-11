@@ -1,0 +1,9 @@
+﻿################################################################################
+# Este archivo .gitignore ha sido creado automáticamente por Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/Building_War/FileContentIndex/51bf3eff-5630-4192-9081-1270c4b69a1c.vsidx
+/.vs/Building_War/FileContentIndex/f0fb9223-ca20-48d7-85fd-f065fe577d3b.vsidx
+/.vs/Building_War/v17
+/Building_War/x64/Debug
+/x64/Debug
