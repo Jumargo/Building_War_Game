@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -30,8 +31,9 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    float Distance; // Distancia al personaje
 
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), Distance(5.0f)
     {
         Position = position;
         WorldUp = up;
@@ -43,6 +45,11 @@ public:
     glm::mat4 GetViewMatrix()
     {
         return glm::lookAt(Position, Position + Front, Up);
+    }
+
+    void UpdateCameraPosition(glm::vec3 playerPosition)
+    {
+        Position = playerPosition - Front * Distance;
     }
 
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
@@ -79,12 +86,11 @@ public:
 
     void ProcessMouseScroll(float yoffset)
     {
-        if (Zoom >= 1.0f && Zoom <= 45.0f)
-            Zoom -= yoffset;
-        if (Zoom <= 1.0f)
-            Zoom = 1.0f;
-        if (Zoom >= 45.0f)
-            Zoom = 45.0f;
+        Distance -= yoffset;
+        if (Distance < 1.0f)
+            Distance = 1.0f;
+        if (Distance > 10.0f)
+            Distance = 10.0f;
     }
 
 private:
@@ -99,3 +105,5 @@ private:
         Up = glm::normalize(glm::cross(Right, Front));
     }
 };
+
+#endif

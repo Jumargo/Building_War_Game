@@ -11,11 +11,14 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // Variables globales
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
+glm::vec3 playerPosition(0.0f, 0.0f, 0.0f);
+glm::vec3 playerSize(1.0f, 1.0f, 1.0f);
 
 int main()
 {
@@ -102,11 +105,15 @@ int main()
 
         processInput(window.window, camera, deltaTime);
 
+        // Actualizar posición de la cámara para seguir al jugador desde atrás
+        camera.UpdateCameraPosition(playerPosition);
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader.use();
 
+        // Renderizar el cubo del escenario
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -116,6 +123,12 @@ int main()
         shader.setMat4("projection", projection);
 
         glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Renderizar el cubo del jugador
+        model = glm::translate(glm::mat4(1.0f), playerPosition);
+        model = glm::scale(model, playerSize);
+        shader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         window.swapBuffers();
@@ -133,13 +146,13 @@ void processInput(GLFWwindow* window, Camera& camera, float deltaTime)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        playerPosition += glm::vec3(camera.Front.x, 0.0f, camera.Front.z) * deltaTime * 2.5f;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        playerPosition -= glm::vec3(camera.Front.x, 0.0f, camera.Front.z) * deltaTime * 2.5f;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        playerPosition -= glm::normalize(glm::cross(camera.Front, camera.Up)) * deltaTime * 2.5f;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        playerPosition += glm::normalize(glm::cross(camera.Front, camera.Up)) * deltaTime * 2.5f;
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
