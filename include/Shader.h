@@ -1,5 +1,4 @@
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
 #include <GL/glew.h>
 #include <string>
@@ -17,5 +16,3 @@ private:
     std::string readFile(const char* filePath);
     void checkCompileErrors(GLuint shader, std::string type);
 };
-
-#endif
