@@ -13,6 +13,7 @@ public:
     bool shouldClose();
     void swapBuffers();
     void pollEvents();
+    void captureMouse();
 private:
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     void initGLFW();

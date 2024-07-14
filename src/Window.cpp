@@ -7,6 +7,7 @@ Window::Window(int width, int height, const char* title)
     initGLEW();
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    captureMouse();
 }
 
 Window::~Window()
@@ -66,4 +67,10 @@ void Window::initGLEW()
 void Window::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void Window::captureMouse()
+{
+    // Captura el cursor y lo oculta dentro de la ventana
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
