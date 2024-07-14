@@ -13,4 +13,24 @@ void Player::ProcessInput(GLFWwindow* window, const glm::vec3& cameraFront, floa
         Position -= glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 1.0f, 0.0f))) * deltaTime * speed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         Position += glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 1.0f, 0.0f))) * deltaTime * speed;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isJumping)
+    {
+        isJumping = true;
+        velocityY = jumpStrength;
+    }
+}
+
+void Player::Update(float deltaTime)
+{
+    if (isJumping)
+    {
+        Position.y += velocityY * deltaTime;
+        velocityY += gravity * deltaTime;
+        if (Position.y <= 0.0f) // Suponemos que el suelo está en y = 0
+        {
+            Position.y = 0.0f;
+            isJumping = false;
+            velocityY = 0.0f;
+        }
+    }
 }

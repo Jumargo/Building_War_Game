@@ -93,6 +93,7 @@ int main()
         lastFrame = currentFrame;
 
         processInput(window.window, player, camera, deltaTime);
+        player.Update(deltaTime);
 
         // Actualizar posición de la cámara para seguir al jugador desde atrás
         camera.UpdateCameraPosition(player);
