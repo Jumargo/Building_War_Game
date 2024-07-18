@@ -206,8 +206,34 @@ bool resolveCollision(Player& player, const Block* block) {
     glm::vec3 blockMax = block->getMax();
 
     if (checkCollision(playerMin, playerMax, blockMin, blockMax)) {
-        // Resolución simple de colisión: revertir el movimiento del jugador
-        player.Position -= player.Size * 0.1f;  // Revertir una pequeña cantidad
+        // Corregir la posición del jugador dependiendo de la dirección de la colisión
+        if (playerMax.y > blockMin.y && playerMin.y < blockMin.y) {
+            // Colisión desde arriba
+            player.Position.y = blockMin.y - player.Size.y * 0.5f;
+            player.velocityY = 0;  // Detener la caída
+            player.isJumping = false;  // Permitir saltar de nuevo
+        }
+        else if (playerMin.y < blockMax.y && playerMax.y > blockMax.y) {
+            // Colisión desde abajo
+            player.Position.y = blockMax.y + player.Size.y * 0.5f;
+            player.velocityY = 0;  // Detener el ascenso
+        }
+        else if (playerMax.x > blockMin.x && playerMin.x < blockMin.x) {
+            // Colisión desde la izquierda
+            player.Position.x = blockMin.x - player.Size.x * 0.5f;
+        }
+        else if (playerMin.x < blockMax.x && playerMax.x > blockMax.x) {
+            // Colisión desde la derecha
+            player.Position.x = blockMax.x + player.Size.x * 0.5f;
+        }
+        else if (playerMax.z > blockMin.z && playerMin.z < blockMin.z) {
+            // Colisión desde el frente
+            player.Position.z = blockMin.z - player.Size.z * 0.5f;
+        }
+        else if (playerMin.z < blockMax.z && playerMax.z > blockMax.z) {
+            // Colisión desde atrás
+            player.Position.z = blockMax.z + player.Size.z * 0.5f;
+        }
         return true;
     }
     return false;
