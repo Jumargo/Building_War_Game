@@ -142,7 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Block.cpp" />
+    <ClCompile Include="src\Block.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Chunk.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -151,17 +151,17 @@
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fragment_shader.glsl" />
-    <None Include="shaders\vertex_shader.glsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Block.h" />
+    <ClInclude Include="include\Block.h" />
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\Player.h" />
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\Vertices.h" />
     <ClInclude Include="include\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\fragment_shader.glsl" />
+    <None Include="shaders\vertex_shader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
