@@ -19,4 +19,7 @@ public:
 
     void ProcessInput(GLFWwindow* window, const glm::vec3& cameraFront, float deltaTime);
     void Update(float deltaTime);
+
+    glm::vec3 getMin() const;
+    glm::vec3 getMax() const;
 };

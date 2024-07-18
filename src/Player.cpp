@@ -34,3 +34,11 @@ void Player::Update(float deltaTime)
         }
     }
 }
+
+glm::vec3 Player::getMin() const {
+    return Position - Size * 0.5f;
+}
+
+glm::vec3 Player::getMax() const {
+    return Position + Size * 0.5f;
+}

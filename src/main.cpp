@@ -13,6 +13,8 @@
 void processInput(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+bool checkCollision(const glm::vec3& minA, const glm::vec3& maxA, const glm::vec3& minB, const glm::vec3& maxB);
+bool resolveCollision(Player& player, const Block* block);
 
 // Variables globales
 Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
@@ -98,10 +100,32 @@ int main()
         processInput(window.window, player, camera, deltaTime);
         player.Update(deltaTime);
 
-        // Actualizar posición de la cámara para seguir al jugador desde atrás
-        camera.UpdateCameraPosition(player);
+        bool collisionDetected = false;
 
-        glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+        // Comprobar colisiones antes de actualizar la cámara
+        for (auto& chunk : chunks)
+        {
+            for (int x = 0; x < CHUNK_SIZE; ++x) {
+                for (int y = 0; y < CHUNK_SIZE; ++y) {
+                    for (int z = 0; z < CHUNK_SIZE; ++z) {
+                        Block* block = chunk.blocks[x][y][z];
+                        if (block != nullptr) {
+                            if (resolveCollision(player, block)) {
+                                collisionDetected = true;
+                                std::cout << "Colisión detectada con el bloque en: (" << x << ", " << y << ", " << z << ")\n";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!collisionDetected) {
+            // Actualizar posición de la cámara para seguir al jugador desde atrás
+            camera.UpdateCameraPosition(player);
+        }
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader.use();
@@ -111,7 +135,7 @@ int main()
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
-        // Renderizar los chunks
+        // Renderizar los chunks (cubos)
         for (auto& chunk : chunks)
         {
             chunk.Render(shader, cubeVAO);
@@ -167,4 +191,24 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(yoffset);
+}
+
+bool checkCollision(const glm::vec3& minA, const glm::vec3& maxA, const glm::vec3& minB, const glm::vec3& maxB) {
+    return (minA.x <= maxB.x && maxA.x >= minB.x) &&
+        (minA.y <= maxB.y && maxA.y >= minB.y) &&
+        (minA.z <= maxB.z && maxA.z >= minB.z);
+}
+
+bool resolveCollision(Player& player, const Block* block) {
+    glm::vec3 playerMin = player.getMin();
+    glm::vec3 playerMax = player.getMax();
+    glm::vec3 blockMin = block->getMin();
+    glm::vec3 blockMax = block->getMax();
+
+    if (checkCollision(playerMin, playerMax, blockMin, blockMax)) {
+        // Resolución simple de colisión: revertir el movimiento del jugador
+        player.Position -= player.Size * 0.1f;  // Revertir una pequeña cantidad
+        return true;
+    }
+    return false;
 }

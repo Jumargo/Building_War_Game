@@ -14,8 +14,12 @@ class Block {
 public:
     BlockType Type;
     glm::vec3 Color;
+    glm::vec3 Position;  // Añadir la posición del bloque
 
-    Block(BlockType type);
+    Block(BlockType type, glm::vec3 position);
 
     void Render(Shader& shader, GLuint VAO);
+
+    glm::vec3 getMin() const;
+    glm::vec3 getMax() const;
 };
