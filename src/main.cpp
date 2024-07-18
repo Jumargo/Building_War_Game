@@ -86,6 +86,9 @@ int main()
     glfwSetScrollCallback(window.window, scroll_callback);
     glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    // Habilitar prueba de profundidad
+    glEnable(GL_DEPTH_TEST);
+
     while (!window.shouldClose())
     {
         float currentFrame = glfwGetTime();

@@ -27,13 +27,24 @@ void Chunk::Render(Shader& shader, GLuint VAO)
                 shader.setMat4("model", model);
 
                 Block* block = blocks[x][y][z];
-                shader.setVec3("uniformColor", block->Color);  // Pasar el color uniforme del bloque
+                shader.setVec3("uniformColor", block->Color);  // Pasar el color del bloque
 
+                // Renderizar el bloque normalmente
                 glDrawArrays(GL_TRIANGLES, 0, 36);
+
+                // Cambiar al modo wireframe
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glLineWidth(2.0f);
+                shader.setVec3("uniformColor", glm::vec3(0.0, 0.0, 0.0));  // Usar color negro para las líneas
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+
+                // Restaurar el modo de relleno
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
         }
     }
     glBindVertexArray(0);
 }
+
 
 
