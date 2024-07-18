@@ -1,0 +1,458 @@
+/////////
+/*NOMBRE del archivo: camera.h*/
+/*Contenido del archivo*/
+#pragma once
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
+#include "Player.h"
+
+enum Camera_Movement {
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT
+};
+
+class Camera
+{
+public:
+    glm::vec3 Position;
+    glm::vec3 Front;
+    glm::vec3 Up;
+    glm::vec3 Right;
+    glm::vec3 WorldUp;
+    float Yaw;
+    float Pitch;
+    float MovementSpeed;
+    float MouseSensitivity;
+    float Zoom;
+    float Distance;
+
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = -90.0f, float pitch = 0.0f);
+
+    glm::mat4 GetViewMatrix();
+    void UpdateCameraPosition(const Player& player);
+    void ProcessKeyboard(Camera_Movement direction, float deltaTime);
+    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
+    void ProcessMouseScroll(float yoffset);
+
+private:
+    void updateCameraVectors();
+};
+
+/////////
+/////////
+/*NOMBRE del archivo: Chunk.h*/
+/*Contenido del archivo*/
+#pragma once
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <GL/glew.h>
+#include "Shader.h"
+
+class Chunk
+{
+public:
+    glm::vec3 Position;
+    Chunk(glm::vec3 position);
+    void Render(Shader& shader, GLuint VAO);
+};
+
+
+/////////
+/////////
+/*NOMBRE del archivo: Player.h*/
+/*Contenido del archivo*/
+#pragma once
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
+
+class Player
+{
+public:
+    glm::vec3 Position;
+    glm::vec3 Size;
+    bool isJumping;
+    float velocityY;
+    const float gravity = -9.81f;
+    const float jumpStrength = 5.0f;
+
+    Player(glm::vec3 position, glm::vec3 size)
+        : Position(position), Size(size), isJumping(false), velocityY(0.0f) {}
+
+    void ProcessInput(GLFWwindow* window, const glm::vec3& cameraFront, float deltaTime);
+    void Update(float deltaTime);
+};
+
+/////////
+/////////
+/*NOMBRE del archivo: Shader.h*/
+/*Contenido del archivo*/
+#pragma once
+
+#include <GL/glew.h>
+#include <string>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+class Shader
+{
+public:
+    GLuint Program;
+    Shader(const char* vertexPath, const char* fragmentPath);
+    void use();
+    void setMat4(const std::string& name, const glm::mat4& mat) const;
+private:
+    std::string readFile(const char* filePath);
+    void checkCompileErrors(GLuint shader, std::string type);
+};
+
+/////////
+/////////
+/*NOMBRE del archivo: Window.h*/
+/*Contenido del archivo*/
+#pragma once
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+
+class Window
+{
+public:
+    GLFWwindow* window;
+    Window(int width, int height, const char* title);
+    ~Window();
+    bool shouldClose();
+    void swapBuffers();
+    void pollEvents();
+    void captureMouse();
+private:
+    static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+    void initGLFW();
+    void createWindow(int width, int height, const char* title);
+    void initGLEW();
+};
+
+
+
+/////////
+/////////
+/*NOMBRE del archivo: fragment_shader.glsl*/
+/*Contenido del archivo*/
+#version 330 core
+out vec4 FragColor;
+
+in vec3 ourColor;
+
+void main()
+{
+    FragColor = vec4(ourColor, 1.0);
+}
+
+/////////
+/////////
+/*NOMBRE del archivo: vertex_shader.glsl*/
+/*Contenido del archivo*/
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+
+out vec3 ourColor;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    ourColor = aColor;
+}
+
+/////////
+/////////
+/*NOMBRE del archivo: Camera.cpp*/
+/*Contenido del archivo*/
+#include "Camera.h"
+
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
+    : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(2.5f), MouseSensitivity(0.1f), Zoom(45.0f), Distance(5.0f)
+{
+    Position = position;
+    WorldUp = up;
+    Yaw = yaw;
+    Pitch = pitch;
+    updateCameraVectors();
+}
+
+glm::mat4 Camera::GetViewMatrix()
+{
+    return glm::lookAt(Position, Position + Front, Up);
+}
+
+void Camera::UpdateCameraPosition(const Player& player)
+{
+    Position = player.Position - Front * Distance;
+}
+
+void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
+{
+    float velocity = MovementSpeed * deltaTime;
+    if (direction == FORWARD)
+        Position += Front * velocity;
+    if (direction == BACKWARD)
+        Position -= Front * velocity;
+    if (direction == LEFT)
+        Position -= Right * velocity;
+    if (direction == RIGHT)
+        Position += Right * velocity;
+}
+
+void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
+{
+    xoffset *= MouseSensitivity;
+    yoffset *= MouseSensitivity;
+
+    Yaw += xoffset;
+    Pitch += yoffset;
+
+    if (constrainPitch)
+    {
+        if (Pitch > 89.0f)
+            Pitch = 89.0f;
+        if (Pitch < -89.0f)
+            Pitch = -89.0f;
+    }
+
+    updateCameraVectors();
+}
+
+void Camera::ProcessMouseScroll(float yoffset)
+{
+    Distance -= yoffset;
+    if (Distance < 1.0f)
+        Distance = 1.0f;
+    if (Distance > 10.0f)
+        Distance = 10.0f;
+}
+
+void Camera::updateCameraVectors()
+{
+    glm::vec3 front;
+    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    front.y = sin(glm::radians(Pitch));
+    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    Front = glm::normalize(front);
+    Right = glm::normalize(glm::cross(Front, WorldUp));
+    Up = glm::normalize(glm::cross(Right, Front));
+}
+
+/////////
+/////////
+/*NOMBRE del archivo: Chunk.cpp*/
+/*Contenido del archivo*/
+#include "Chunk.h"
+
+Chunk::Chunk(glm::vec3 position)
+    : Position(position)
+{
+}
+
+void Chunk::Render(Shader& shader, GLuint VAO)
+{
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), Position);
+    shader.setMat4("model", model);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
+/////////
+/////////
+/*NOMBRE del archivo: Shader.cpp*/
+/*Contenido del archivo*/
+#include "Shader.h"
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
+Shader::Shader(const char* vertexPath, const char* fragmentPath)
+{
+    // Leer los archivos de los shaders
+    std::string vertexCode = readFile(vertexPath);
+    std::string fragmentCode = readFile(fragmentPath);
+
+    if (vertexCode.empty() || fragmentCode.empty())
+    {
+        std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+        return;
+    }
+
+    const char* vShaderCode = vertexCode.c_str();
+    const char* fShaderCode = fragmentCode.c_str();
+
+    // Compilar los shaders
+    GLuint vertex, fragment;
+    int success;
+    char infoLog[512];
+
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex, 1, &vShaderCode, NULL);
+    glCompileShader(vertex);
+    checkCompileErrors(vertex, "VERTEX");
+
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment, 1, &fShaderCode, NULL);
+    glCompileShader(fragment);
+    checkCompileErrors(fragment, "FRAGMENT");
+
+    // Crear el programa de shaders
+    Program = glCreateProgram();
+    glAttachShader(Program, vertex);
+    glAttachShader(Program, fragment);
+    glLinkProgram(Program);
+    checkCompileErrors(Program, "PROGRAM");
+
+    // Eliminar los shaders compilados una vez enlazados al programa
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
+}
+
+void Shader::use()
+{
+    glUseProgram(Program);
+}
+
+std::string Shader::readFile(const char* filePath)
+{
+    std::ifstream file;
+    std::stringstream buffer;
+    file.open(filePath);
+    if (!file.is_open())
+    {
+        std::cerr << "ERROR::SHADER::FILE_NOT_READ: " << filePath << std::endl;
+        return "";
+    }
+    buffer << file.rdbuf();
+    file.close();
+    return buffer.str();
+}
+
+void Shader::checkCompileErrors(GLuint shader, std::string type)
+{
+    GLint success;
+    GLchar infoLog[1024];
+    if (type != "PROGRAM")
+    {
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success)
+        {
+            glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+            std::cerr << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+        }
+    }
+    else
+    {
+        glGetProgramiv(shader, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+            std::cerr << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+        }
+    }
+}
+
+void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(Program, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+/////////
+/////////
+/*NOMBRE del archivo: Window.cpp*/
+/*Contenido del archivo*/
+#include "Window.h"
+
+Window::Window(int width, int height, const char* title)
+{
+    initGLFW();
+    createWindow(width, height, title);
+    initGLEW();
+    glViewport(0, 0, width, height);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    captureMouse();
+}
+
+Window::~Window()
+{
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
+
+bool Window::shouldClose()
+{
+    return glfwWindowShouldClose(window);
+}
+
+void Window::swapBuffers()
+{
+    glfwSwapBuffers(window);
+}
+
+void Window::pollEvents()
+{
+    glfwPollEvents();
+}
+
+void Window::initGLFW()
+{
+    if (!glfwInit())
+    {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        exit(-1);
+    }
+}
+
+void Window::createWindow(int width, int height, const char* title)
+{
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    window = glfwCreateWindow(width, height, title, NULL, NULL);
+    if (!window)
+    {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        exit(-1);
+    }
+    glfwMakeContextCurrent(window);
+}
+
+void Window::initGLEW()
+{
+    if (glewInit() != GLEW_OK)
+    {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        exit(-1);
+    }
+}
+
+void Window::framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+void Window::captureMouse()
+{
+    // Captura el cursor y lo oculta dentro de la ventana
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+/////////

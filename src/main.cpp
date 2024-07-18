@@ -23,7 +23,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 // Tamaño del mapa
-const int mapSize = 100;
+const int mapSize = 1;
 std::vector<Chunk> chunks;
 
 int main()
@@ -98,7 +98,7 @@ int main()
         // Actualizar posición de la cámara para seguir al jugador desde atrás
         camera.UpdateCameraPosition(player);
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader.use();
@@ -115,9 +115,11 @@ int main()
         }
 
         // Renderizar la pirámide del jugador
+        shader.setVec3("uniformColor", glm::vec3(0.0, 0.0, 0.0));  // Desactivar el color uniforme
         glm::mat4 model = glm::translate(glm::mat4(1.0f), player.Position);
         model = glm::scale(model, player.Size);
         shader.setMat4("model", model);
+
         glBindVertexArray(pyramidVAO);
         glDrawArrays(GL_TRIANGLES, 0, 18);
 
