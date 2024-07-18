@@ -16,7 +16,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // Variables globales
 Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
-Player player(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+Player player(glm::vec3(5.0f, 20.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
 float deltaTime = 0.0f;
