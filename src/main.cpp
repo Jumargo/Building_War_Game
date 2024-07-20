@@ -4,21 +4,21 @@
 #include "Player.h"
 #include "Chunk.h"
 #include "Vertices.h"
+#include "CollisionHandler.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
+#include <iostream>
 
 // Prototipos de funciones
 void processInput(GLFWwindow* window, Player& player, Camera& camera, float deltaTime);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-bool checkCollision(const glm::vec3& minA, const glm::vec3& maxA, const glm::vec3& minB, const glm::vec3& maxB);
-bool resolveCollision(Player& player, const Block* block);
 
 // Variables globales
 Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
-Player player(glm::vec3(5.0f, 20.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+Player player(glm::vec3(5.0f, 20.0f, 5.0f), glm::vec3(0.3f, 0.3f, 0.3f));
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
 float deltaTime = 0.0f;
@@ -98,7 +98,6 @@ int main()
         lastFrame = currentFrame;
 
         processInput(window.window, player, camera, deltaTime);
-        player.Update(deltaTime);
 
         bool collisionDetected = false;
 
@@ -110,9 +109,9 @@ int main()
                     for (int z = 0; z < CHUNK_SIZE; ++z) {
                         Block* block = chunk.blocks[x][y][z];
                         if (block != nullptr) {
-                            if (resolveCollision(player, block)) {
+                            if (CollisionHandler::resolveCollision(player, block)) {
                                 collisionDetected = true;
-                                std::cout << "Colisión detectada con el bloque en: (" << x << ", " << y << ", " << z << ")\n";
+                                std::cout << "Colisión detectada con el bloque en: (" << x << ", " << y << ", " << z << ")" << std::endl;
                             }
                         }
                     }
@@ -124,6 +123,8 @@ int main()
             // Actualizar posición de la cámara para seguir al jugador desde atrás
             camera.UpdateCameraPosition(player);
         }
+
+        player.Update(deltaTime);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -191,50 +192,4 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(yoffset);
-}
-
-bool checkCollision(const glm::vec3& minA, const glm::vec3& maxA, const glm::vec3& minB, const glm::vec3& maxB) {
-    return (minA.x <= maxB.x && maxA.x >= minB.x) &&
-        (minA.y <= maxB.y && maxA.y >= minB.y) &&
-        (minA.z <= maxB.z && maxA.z >= minB.z);
-}
-
-bool resolveCollision(Player& player, const Block* block) {
-    glm::vec3 playerMin = player.getMin();
-    glm::vec3 playerMax = player.getMax();
-    glm::vec3 blockMin = block->getMin();
-    glm::vec3 blockMax = block->getMax();
-
-    if (checkCollision(playerMin, playerMax, blockMin, blockMax)) {
-        // Corregir la posición del jugador dependiendo de la dirección de la colisión
-        if (playerMax.y > blockMin.y && playerMin.y < blockMin.y) {
-            // Colisión desde arriba
-            player.Position.y = blockMin.y - player.Size.y * 0.5f;
-            player.velocityY = 0;  // Detener la caída
-            player.isJumping = false;  // Permitir saltar de nuevo
-        }
-        else if (playerMin.y < blockMax.y && playerMax.y > blockMax.y) {
-            // Colisión desde abajo
-            player.Position.y = blockMax.y + player.Size.y * 0.5f;
-            player.velocityY = 0;  // Detener el ascenso
-        }
-        else if (playerMax.x > blockMin.x && playerMin.x < blockMin.x) {
-            // Colisión desde la izquierda
-            player.Position.x = blockMin.x - player.Size.x * 0.5f;
-        }
-        else if (playerMin.x < blockMax.x && playerMax.x > blockMax.x) {
-            // Colisión desde la derecha
-            player.Position.x = blockMax.x + player.Size.x * 0.5f;
-        }
-        else if (playerMax.z > blockMin.z && playerMin.z < blockMin.z) {
-            // Colisión desde el frente
-            player.Position.z = blockMin.z - player.Size.z * 0.5f;
-        }
-        else if (playerMin.z < blockMax.z && playerMax.z > blockMax.z) {
-            // Colisión desde atrás
-            player.Position.z = blockMax.z + player.Size.z * 0.5f;
-        }
-        return true;
-    }
-    return false;
 }

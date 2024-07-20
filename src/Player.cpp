@@ -1,10 +1,11 @@
 #include "Player.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp> // Incluir para usar glm::value_ptr
+#include <iostream>
 
 void Player::ProcessInput(GLFWwindow* window, const glm::vec3& cameraFront, float deltaTime)
 {
-    const float speed = 2.5f;
+    const float speed = 4.5f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         Position += glm::vec3(cameraFront.x, 0.0f, cameraFront.z) * deltaTime * speed;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -22,17 +23,21 @@ void Player::ProcessInput(GLFWwindow* window, const glm::vec3& cameraFront, floa
 
 void Player::Update(float deltaTime)
 {
-    if (isJumping)
-    {
-        Position.y += velocityY * deltaTime;
+    // Resetear isOnGround al inicio de cada actualización
+    isOnGround = false;
+
+    // Aplicar gravedad solo si el jugador no está en el suelo
+    if (!isOnGround) {
         velocityY += gravity * deltaTime;
-        if (Position.y <= 0.0f) // Suponemos que el suelo está en y = 0
-        {
-            Position.y = 0.0f;
-            isJumping = false;
-            velocityY = 0.0f;
-        }
+    } else {
+        velocityY = 0;
     }
+
+    // Aplicar movimiento en el eje Y
+    Position.y += velocityY * deltaTime;
+
+    // Log de la posición y velocidad
+    std::cout << "Actualización del jugador - Posición: (" << Position.x << ", " << Position.y << ", " << Position.z << "), Velocidad Y: " << velocityY << std::endl;
 }
 
 glm::vec3 Player::getMin() const {
