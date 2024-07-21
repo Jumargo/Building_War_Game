@@ -33,13 +33,14 @@ bool CollisionHandler::resolveCollision(Player& player, const Block* block)
             // Colisión desde arriba
             correction.y = blockMin.y - playerMax.y - 0.1f; // Añadir margen extra
             player.velocityY = 0;  // Detener la caída
-            player.isJumping = false;  // Permitir saltar de nuevo
-            player.isOnGround = true; // Indicar que el jugador está en el suelo
+
             std::cout << "Colisión en el eje Y desde arriba, corrección: " << correction.y << std::endl;
         }
         else if (playerMin.y < blockMax.y && playerMax.y > blockMax.y) {
             // Colisión desde abajo
             correction.y = blockMax.y - playerMin.y + 0.1f; // Añadir margen extra
+            player.isJumping = false;  // Permitir saltar de nuevo
+            player.isOnGround = true; // Indicar que el jugador está en el suelo
             player.velocityY = 0;  // Detener el ascenso
             std::cout << "Colisión en el eje Y desde abajo, corrección: " << correction.y << std::endl;
         }

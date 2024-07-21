@@ -17,15 +17,13 @@ void Player::ProcessInput(GLFWwindow* window, const glm::vec3& cameraFront, floa
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isJumping)
     {
         isJumping = true;
+        isOnGround = false;
         velocityY = jumpStrength;
     }
 }
 
 void Player::Update(float deltaTime)
 {
-    // Resetear isOnGround al inicio de cada actualización
-    isOnGround = false;
-
     // Aplicar gravedad solo si el jugador no está en el suelo
     if (!isOnGround) {
         velocityY += gravity * deltaTime;
