@@ -74,12 +74,16 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // Crear los chunks
+    // Crear los chunks del mapa
     for (int x = 0; x < mapSize; ++x)
     {
         for (int z = 0; z < mapSize; ++z)
         {
             chunks.push_back(Chunk(glm::vec3(x, 0.0f, z)));
+            chunks.push_back(Chunk(glm::vec3(x - 10, 1.0f, z - 10)));
+            chunks.push_back(Chunk(glm::vec3(x - 10, 1.0f, z + 10)));
+            chunks.push_back(Chunk(glm::vec3(x + 10, 1.0f, z - 10)));
+            chunks.push_back(Chunk(glm::vec3(x + 10, 1.0f, z + 10)));
         }
     }
 
