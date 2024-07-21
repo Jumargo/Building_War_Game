@@ -1,6 +1,7 @@
 #include "Window.h"
 
 Window::Window(int width, int height, const char* title)
+    :lastTime(0.0f), nbFrames(0)
 {
     initGLFW();
     createWindow(width, height, title);
@@ -29,6 +30,7 @@ void Window::swapBuffers()
 void Window::pollEvents()
 {
     glfwPollEvents();
+    updateTitleWithFPS();
 }
 
 void Window::initGLFW()
@@ -73,4 +75,19 @@ void Window::captureMouse()
 {
     // Captura el cursor y lo oculta dentro de la ventana
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void Window::updateTitleWithFPS()
+{
+    double currentTime = glfwGetTime();
+    nbFrames++;
+    if (currentTime - lastTime >= 0.1) // Update every 0.1 second
+    {
+        double fps = nbFrames / (currentTime - lastTime);
+        std::string title = "FPS: " + std::to_string(static_cast<int>(fps));
+        glfwSetWindowTitle(window, title.c_str());
+
+        nbFrames = 0;
+        lastTime = currentTime;
+    }
 }

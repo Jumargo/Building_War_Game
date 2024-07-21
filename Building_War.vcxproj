@@ -156,6 +156,7 @@
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\Chunk.h" />
     <ClInclude Include="include\CollisionHandler.h" />
+    <ClInclude Include="include\PerlinNoise.h" />
     <ClInclude Include="include\Player.h" />
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\Vertices.h" />
