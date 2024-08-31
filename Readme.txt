@@ -1,5 +1,6 @@
-Pr髕imos Pasos
-Generaci髇 Procedural de Terreno: Implementar la generaci髇 de terrenos utilizando Perlin Noise.
-Renderizado de Chunks: Optimizar el renderizado dividiendo el mundo en chunks.
-Interacci髇 y F韘ica: A馻dir interacci髇 con los bloques y f韘ica b醩ica para el movimiento.
-Iluminaci髇 y Sombras: A馻dir iluminaci髇 y sombras para mejorar el realismo.
+Pr贸ximos Pasos
+Generaci贸n Procedural de Terreno: Implementar la generaci贸n de terrenos utilizando Perlin Noise.
+DONE -> Renderizado de Chunks: Optimizar el renderizado dividiendo el mundo en chunks.
+DONE -> Interacci贸n y F铆sica: A帽adir interacci贸n con los bloques y f铆sica b谩sica para el movimiento.
+Iluminaci贸n y Sombras: A帽adir iluminaci贸n y sombras para mejorar el realismo.
+
