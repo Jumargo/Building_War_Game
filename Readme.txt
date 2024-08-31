@@ -4,3 +4,4 @@ DONE -> Renderizado de Chunks: Optimizar el renderizado dividiendo el mundo en c
 DONE -> Interacción y Física: Añadir interacción con los bloques y física básica para el movimiento.
 Iluminación y Sombras: Añadir iluminación y sombras para mejorar el realismo.
 
+![Demo del Proyecto](Building_War_gif.gif)
